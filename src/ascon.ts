@@ -24,7 +24,7 @@ export default class JsAscon {
     cipherVariant: string = 'Ascon-128'
   ): string {
     const key = JsAscon.hash(secretKey, 'Ascon-Xof', cipherVariant === 'Ascon-80pq' ? 20 : 16)
-    const nonce = crypto.getRandomValues(new Uint8Array(16))
+    const nonce = JsAscon.getRandomUintArray(16)
     const ciphertext = JsAscon.encrypt(
       key,
       nonce,
@@ -599,8 +599,12 @@ export default class JsAscon {
    * @return {Uint8Array}
    */
   public static anyToByteArray (val: any): Uint8Array {
-    if (val instanceof Uint8Array) return val
-    if (Array.isArray(val)) return new Uint8Array(val)
+    if (val instanceof Uint8Array) {
+      return val
+    }
+    if (Array.isArray(val)) {
+      return new Uint8Array(val)
+    }
     return new TextEncoder().encode(val)
   }
 
@@ -651,7 +655,9 @@ export default class JsAscon {
     if (offset < 0) {
       offset = byteArray.length + offset
     }
-    if (byteArray.length - 1 < offset) return 0n
+    if (byteArray.length - 1 < offset) {
+      return 0n
+    }
     return new DataView(byteArray.buffer).getBigUint64(offset)
   }
 
@@ -714,6 +720,25 @@ export default class JsAscon {
   public static assert (result: boolean, errorMessage: string): void {
     if (!result) {
       throw new Error(errorMessage)
+    }
+  }
+
+  /**
+   * Generate a uint array with random bytes with given length
+   * @param {number} length
+   * @return {Uint8Array}
+   */
+  public static getRandomUintArray (length: number): Uint8Array {
+    if (typeof crypto === 'undefined') {
+      new Error('JsAscon requires the "crypto" library to be installed')
+    }
+    if (typeof crypto.getRandomValues === 'function') {
+      return crypto.getRandomValues(new Uint8Array(length))
+    }
+    // @ts-ignore
+    if (typeof crypto.randomBytes === 'function') {
+      // @ts-ignore
+      return JsAscon.anyToByteArray(crypto.randomBytes(length))
     }
   }
 

@@ -6,7 +6,7 @@
  * @author BrainFooLong (Roland Eigelsreiter)
  * @version 1.0.0
  */
-class JsAscon {
+export default class JsAscon {
     /**
      * Encrypt any message to a hex string
      * @param {string|Uint8Array} secretKey Your "password", so to say
