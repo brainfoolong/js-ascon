@@ -1,0 +1,22 @@
+{
+  "name": "js-ascon",
+  "version": "1.0.0",
+  "description": "Persistent key/value data storage for your Browser and/or PWA, promisified, including file support and service worker support, all with IndexedDB.",
+  "scripts": {
+    "dist": "node ./node_modules/typescript/bin/tsc --project tsconfig.json && node build/dist.js",
+    "run-tests": "node ./node_modules/typescript/bin/tsc --project tsconfig.json && node tests/test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brainfoolong/js-ascon.git"
+  },
+  "author": "BrainFooLong (Roland Eigelsreiter)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brainfoolong/js-ascon/issues"
+  },
+  "homepage": "https://github.com/brainfoolong/js-ascon",
+  "devDependencies": {
+    "typescript": "^5.3.2"
+  }
+}

@@ -1,0 +1,21 @@
+name: JS tests
+on:
+  push:
+  pull_request:
+jobs:
+  tests:
+    strategy:
+      matrix:
+        node-version: [ '12.x', '14.x', '16.x', '18.x' ,'20.x' ,'latest' ]
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Run tests on ${{ matrix.node-version }}
+        run: node tests/test-all.js
