@@ -29,6 +29,9 @@ I have made library for AES PHP/JS encryption already in the past. Bit juggling 
 I like the Ascon implementation and it at the time of writing, a JS implementation was missing. So i made one. Would be
 cool if you leave a follow or spend some virtual coffee.
 
+## PHP Implementation
+Chances are high that you probably need a PHP implementation too. I've made one here -> https://github.com/brainfoolong/php-ascon
+
 ## Usage
 
 For more demos see in folder `demo`.
