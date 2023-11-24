@@ -3,6 +3,7 @@
 *.json text eol=lf
 *.ts text eol=lf
 *.html text eol=lf
+*.txt text eol=lf
 *.min.js binary
 vendor/* binary
 

@@ -32,6 +32,14 @@ cool if you leave a follow or spend some virtual coffee.
 ## PHP Implementation
 Chances are high that you probably need a PHP implementation too. I've made one here -> https://github.com/brainfoolong/php-ascon
 
+## Installation
+
+    # for npm
+    npm install js-ascon
+    const JsAscon = require('js-ascon')
+    # in browser
+    <script src="ascon.js"></script>
+
 ## Usage
 
 For more demos see in folder `demo`.
