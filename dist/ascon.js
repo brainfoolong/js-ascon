@@ -1,4 +1,4 @@
-// js-ascon v1.0.0 @ https://github.com/brainfoolong/js-ascon
+// js-ascon v1.0.2 @ https://github.com/brainfoolong/js-ascon
 /**
  * Javascript / Typescript implementation of Ascon v1.2
  * Heavily inspired by the python implementation of https://github.com/meichlseder/pyascon
@@ -31,7 +31,7 @@ class JsAscon {
      */
     static decryptFromHex(secretKey, hexStr, associatedData = null, cipherVariant = 'Ascon-128') {
         const key = JsAscon.hash(secretKey, 'Ascon-Xof', cipherVariant === 'Ascon-80pq' ? 20 : 16);
-        const hexData = Uint8Array.from(hexStr.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+        const hexData = Uint8Array.from((hexStr.match(/.{1,2}/g) || []).map((byte) => parseInt(byte, 16)));
         const plaintextMessage = JsAscon.decrypt(key, hexData.slice(-16), associatedData !== null ? JSON.stringify(associatedData) : '', hexData.slice(0, -16), cipherVariant);
         return plaintextMessage !== null ? JSON.parse(JsAscon.byteArrayToStr(plaintextMessage)) : null;
     }
@@ -152,6 +152,7 @@ class JsAscon {
         let hash = [];
         JsAscon.permutation(data, permutationRoundsA);
         while (hash.length < hashLength) {
+            // @ts-ignore
             hash = hash.concat(...JsAscon.bigIntToByteArray(data[0]));
             JsAscon.permutation(data, permutationRoundsB);
         }
@@ -225,6 +226,7 @@ class JsAscon {
         let tag = [];
         JsAscon.permutation(data, permutationRoundsA);
         while (tag.length < tagLength) {
+            // @ts-ignore
             tag = tag.concat(...JsAscon.bigIntToByteArray(data[0]), ...JsAscon.bigIntToByteArray(data[1]));
             JsAscon.permutation(data, permutationRoundsB);
         }
@@ -407,7 +409,7 @@ class JsAscon {
             data[0] ^= data[4];
             data[4] ^= data[3];
             data[2] ^= data[1];
-            let t = [];
+            let t = new Array();
             for (let i = 0; i <= 4; i++) {
                 t[i] = (data[i] ^ BigInt('0xffffffffffffffff')) & data[(i + 1) % 5];
             }
@@ -585,6 +587,7 @@ class JsAscon {
             // @ts-ignore
             return JsAscon.anyToByteArray(crypto.randomBytes(length));
         }
+        return new Uint8Array(0);
     }
     /**
      * Debug output

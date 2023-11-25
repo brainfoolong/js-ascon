@@ -50,7 +50,7 @@ export default class JsAscon {
     cipherVariant: string = 'Ascon-128'
   ): any {
     const key = JsAscon.hash(secretKey, 'Ascon-Xof', cipherVariant === 'Ascon-80pq' ? 20 : 16)
-    const hexData = Uint8Array.from(hexStr.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)))
+    const hexData = Uint8Array.from((hexStr.match(/.{1,2}/g) || []).map((byte: string) => parseInt(byte, 16)))
     const plaintextMessage = JsAscon.decrypt(
       key,
       hexData.slice(-16),
@@ -201,6 +201,7 @@ export default class JsAscon {
     let hash = []
     JsAscon.permutation(data, permutationRoundsA)
     while (hash.length < hashLength) {
+      // @ts-ignore
       hash = hash.concat(...JsAscon.bigIntToByteArray(data[0]))
       JsAscon.permutation(data, permutationRoundsB)
     }
@@ -295,6 +296,7 @@ export default class JsAscon {
     let tag = []
     JsAscon.permutation(data, permutationRoundsA)
     while (tag.length < tagLength) {
+      // @ts-ignore
       tag = tag.concat(...JsAscon.bigIntToByteArray(data[0]), ...JsAscon.bigIntToByteArray(data[1]))
       JsAscon.permutation(data, permutationRoundsB)
     }
@@ -542,7 +544,7 @@ export default class JsAscon {
       data[0] ^= data[4]
       data[4] ^= data[3]
       data[2] ^= data[1]
-      let t = []
+      let t = new Array<bigint>()
       for (let i = 0; i <= 4; i++) {
         t[i] = (data[i] ^ BigInt('0xffffffffffffffff')) & data[(i + 1) % 5]
       }
@@ -740,6 +742,7 @@ export default class JsAscon {
       // @ts-ignore
       return JsAscon.anyToByteArray(crypto.randomBytes(length))
     }
+    return new Uint8Array(0)
   }
 
   /**
