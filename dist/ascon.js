@@ -1,4 +1,4 @@
-// js-ascon v1.0.2 @ https://github.com/brainfoolong/js-ascon
+// js-ascon v1.0.3 @ https://github.com/brainfoolong/js-ascon
 /**
  * Javascript / Typescript implementation of Ascon v1.2
  * Heavily inspired by the python implementation of https://github.com/meichlseder/pyascon
@@ -107,7 +107,9 @@ class JsAscon {
         const ciphertextTag = ciphertextAndTag.slice(-16);
         const plaintext = JsAscon.processCiphertext(data, permutationRoundsB, rate, ciphertext);
         const tag = JsAscon.finalize(data, permutationRoundsA, rate, key);
-        return plaintext;
+        if (JsAscon.byteArrayToHex(tag) === JsAscon.byteArrayToHex(ciphertextTag)) {
+            return plaintext;
+        }
         return null;
     }
     /**
