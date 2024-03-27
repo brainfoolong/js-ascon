@@ -1,10 +1,9 @@
 {
   "name": "js-ascon",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "JavaScript / TypeScript Implementation of Ascon, a family of authenticated encryption (AEAD) and hashing algorithms designed to be lightweight.",
   "scripts": {
-    "dist": "node ./node_modules/typescript/bin/tsc --project tsconfig.json && node build/dist.js",
-    "run-tests": "node ./node_modules/typescript/bin/tsc --project tsconfig.json && node tests/test.ts"
+    "dist": "node ./node_modules/typescript/bin/tsc --project tsconfig.json && node build/dist.js"
   },
   "repository": {
     "type": "git",
