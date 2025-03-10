@@ -6,6 +6,8 @@ This is a JavaScript/TypeScript (JS compiled from TypeScript) implementation of 
 It allows to encrypt and decrypt any kind of message. At kind be somewhat seen as the successor to AES encryption.
 Heavily inspired by the python implementation of Ascon by https://github.com/meichlseder/pyascon
 
+> Notice: This library does contain the version 1.2 of Ascon. v1.2 was a draft version and there are already newer versions of ascon. See https://github.com/ascon/ascon-c - I don't have time to upgrade this library to the new version.
+
 ## About Ascon
 
 Ascon is a family of [authenticated encryption](https://en.wikipedia.org/wiki/Authenticated_encryption) (AEAD)
