@@ -2,12 +2,11 @@
 
 [![Tests](https://github.com/brainfoolong/js-ascon/actions/workflows/tests.yml/badge.svg)](https://github.com/brainfoolong/js-ascon/actions/workflows/tests.yml)
 
-This is a JavaScript/TypeScript (JS compiled from TypeScript) implementation of Ascon v1.2, an authenticated cipher and hash function.
-It allows to encrypt and decrypt any kind of message. At kind be somewhat seen as the successor to AES encryption.
+This is a JavaScript/TypeScript (JS compiled from TypeScript) implementation of Ascon v1.3, an authenticated cipher and hash function.
+It allows to encrypt and decrypt any kind of message. Includes the authenticated encryption and hash function variants as specified in [NIST SP 800-232 (initial public draft)](https://csrc.nist.gov/pubs/sp/800/232/ipd).
 Heavily inspired by the python implementation of Ascon by https://github.com/meichlseder/pyascon
 
-> Notice: This library does contain the version 1.2 of Ascon. v1.2 was a draft version and there are already newer versions of ascon. See https://github.com/ascon/ascon-c - I don't have time to upgrade this library to the new version.
-
+> Notice: This library does contain the version 1.3 of Ascon. v1.2 was a draft version and there are already newer versions of ascon. See https://github.com/ascon/ascon-c . Version 1.2 is not compatible with 1.3
 ## About Ascon
 
 Ascon is a family of [authenticated encryption](https://en.wikipedia.org/wiki/Authenticated_encryption) (AEAD)
@@ -78,45 +77,47 @@ console.log(JsAscon.mac(key, "Testmessage"))
 
 ```
 
-See `tests/performance.html` for some tests with various message data size.
+Algorithms
+----------
 
-```
-# no scientific tests, just executed on my local machine, results depend on your machine
-# a "cycle" is one encryption and one decryption 
+This is a simple reference implementation of Ascon as specified in NIST's draft standard, NIST SP 800-232, which includes
 
-### 10 cycles with 32 byte message data and 128 byte associated data ###
-Total Time: 0.080 seconds
+  * Authenticated encryption `JsAscon.encrypt` and `JsAscon.decrypt`
 
-### 10 cycles with 128 byte message data and 512 byte associated data ###
-Total Time: 0.260 seconds
+    - `Ascon-AEAD128`
+  
+  * Hashing algorithms `JsAscon.hash` including 3 hash function variants with slightly different interfaces:
 
-### 10 cycles with 1024 byte message data and 2048 byte associated data ###
-Total Time: 1.370 seconds
+    - `Ascon-Hash256` with fixed 256-bit output
+    - `Ascon-XOF128` with variable output lengths (specified with `hashlength`)
+    - `Ascon-CXOF128` with variable output lengths (`hashlength`) and supporting a customization string as an additional input (to be implemented)
 
-### 10 cycles with 4096 byte message data and 0 byte associated data ###
-Total Time: 2.869 seconds
-```
+  * Message Authentication Code `JsAscon.mac`
 
-## Implemented Algorithms
+    - `Ascon-Mac` (128-bit output, arbitrarily long input), 
+    - `Ascon-Prf` (arbitrarily long input and output), 
+    - `Ascon-PrfShort` (t-bit output for t<=128, m-bit input for m<=128)
+  
 
-This is a simple reference implementation of Ascon v1.2 as submitted to the NIST LWC competition that includes
+Older Algorithm Variants
+------------------------
 
-* Authenticated encryption/decryption with the following 3 variants:
+Older versions of `ascon.py` implement Ascon v1.2 as submitted to the NIST LWC competition and published in the Journal of Cryptology, as well as additional functionality for message authentication. These versions can be found in commit (TODO), including
+
+  * Authenticated encryption:
 
     - `Ascon-128`
     - `Ascon-128a`
     - `Ascon-80pq`
-
-* Hashing algorithms including 4 hash function variants with fixed 256-bit (`Hash`) or variable (`Xof`) output lengths:
+  
+  * Hashing algorithms:
 
     - `Ascon-Hash`
     - `Ascon-Hasha`
     - `Ascon-Xof`
     - `Ascon-Xofa`
-
-* Message authentication codes including 5 MAC variants (from https://eprint.iacr.org/2021/1574, not part of the LWC
-  proposal) with fixed 128-bit (`Mac`) or variable (`Prf`) output lengths, including a variant for short messages of up
-  to 128 bits (`PrfShort`).
+  
+  * Message authentication codes `ascon_mac(key, message, variant="Ascon-Mac", taglength=16)` for 5 MAC variants (from https://eprint.iacr.org/2021/1574, not part of the LWC proposal) with fixed 128-bit (`Mac`) or variable (`Prf`) output lengths, including a variant for short messages of up to 128 bits (`PrfShort`).
 
     - `Ascon-Mac`
     - `Ascon-Maca`

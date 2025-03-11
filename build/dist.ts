@@ -16,6 +16,7 @@ if(typeof crypto === 'undefined' && typeof global !== 'undefined'){
 }
 `
 let contentsCommonJs = contents
+contentsCommonJs = contentsCommonJs.replace(/\sexport {.*?};/s, '')
 fs.writeFileSync(srcFile, contentsCommonJs)
 let contentsEs6 = contents.replace(/^class JsAscon/m, 'export default class JsAscon')
 fs.writeFileSync(srcFileEs6, contentsEs6)

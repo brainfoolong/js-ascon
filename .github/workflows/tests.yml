@@ -1,4 +1,4 @@
-name: JS tests
+name: JS and TS tests
 on:
   push:
   pull_request:
@@ -13,9 +13,17 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Run tests on ${{ matrix.node-version }}
-        run: node tests/test-all.js
+        run: node tests/tests-node.js
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Run tests on Bun
+        run: bun tests/tests-bun.ts 
