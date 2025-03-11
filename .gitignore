@@ -6,3 +6,4 @@ package-lock.json
 /playwright-report/
 /playwright/.cache/
 *Zone.Identifier
+bun.lock
