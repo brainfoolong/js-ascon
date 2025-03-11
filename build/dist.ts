@@ -3,7 +3,7 @@ const fs = require('fs')
 
 const packageJson = require('../package.json')
 const srcFile = __dirname + '/../dist/ascon.js'
-const srcFileEs6 = __dirname + '/../dist/ascon.es6.js'
+const srcFileEs6 = __dirname + '/../dist/ascon.module.js'
 let contents = fs.readFileSync(srcFile).toString().replace('export default JsAscon;', '')
 contents = '// js-ascon v' + packageJson.version + ' @ ' + packageJson.homepage + '\n' + contents
 contents += `

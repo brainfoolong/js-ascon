@@ -19,7 +19,7 @@ export default class JsAscon {
    * @param {string} cipherVariant See JsAscon.encrypt()
    * @return {string}
    */
-  public static encryptToHex(
+  public static encryptToHex (
     secretKey: string | Uint8Array,
     messageToEncrypt: any,
     associatedData: any = null,
@@ -45,7 +45,7 @@ export default class JsAscon {
    * @param {string} cipherVariant See JsAscon.encrypt()
    * @return {any} Null indicate unsuccessfull decrypt
    */
-  public static decryptFromHex(
+  public static decryptFromHex (
     secretKey: string | Uint8Array,
     hexStr: string,
     associatedData: any = null,
@@ -72,7 +72,7 @@ export default class JsAscon {
    * @param {string} variant "Ascon-AEAD128"
    * @return {Uint8Array}
    */
-  public static encrypt(
+  public static encrypt (
     key: string | Uint8Array,
     nonce: string | Uint8Array,
     associatedData: string | Uint8Array,
@@ -111,7 +111,7 @@ export default class JsAscon {
    * @param {string} variant "Ascon-AEAD128"
    * @return {Uint8Array|null} Returns plaintext as byte array or NULL when cannot decrypt
    */
-  public static decrypt(
+  public static decrypt (
     key: string | Uint8Array,
     nonce: string | Uint8Array,
     associatedData: string | Uint8Array,
@@ -157,7 +157,7 @@ export default class JsAscon {
    * @param {string|Uint8Array} customization A bytes object of at most 256 bytes specifying the customization string (only for Ascon-CXOF128)
    * @return {Uint8Array} The byte array representing the hash tag
    */
-  public static hash(
+  public static hash (
     message: string | number[] | Uint8Array,
     variant: string = 'Ascon-Hash256',
     hashLength: number = 32,
@@ -232,7 +232,7 @@ export default class JsAscon {
     let hash = []
     while (hash.length < hashLength) {
       // @ts-ignore
-      hash = hash.concat(...JsAscon.bigIntToByteArray(data[0]))
+      hash = hash.concat(...JsAscon.intToByteArray(data[0]))
       JsAscon.permutation(data, permutationRoundsB)
     }
     JsAscon.debug('finalization', data)
@@ -247,7 +247,7 @@ export default class JsAscon {
    * @param {number} tagLength the requested output bytelength l/8 (must be <=16 for variants "Ascon-Mac" and "Ascon-PrfShort", arbitrary for "Ascon-Prf"; should be >= 16 for 128-bit security)
    * @return {Uint8Array} The byte array representing the authentication tag
    */
-  public static mac(
+  public static mac (
     key: string | number[] | Uint8Array,
     message: string | number[] | Uint8Array,
     variant: string = 'Ascon-Mac',
@@ -287,14 +287,14 @@ export default class JsAscon {
       JsAscon.debug('mac process message', data)
       data[3] ^= JsAscon.byteArrayToBigInt(key, 0)
       data[4] ^= JsAscon.byteArrayToBigInt(key, 8)
-      return new Uint8Array([...JsAscon.bigIntToByteArray(data[3]), ...JsAscon.bigIntToByteArray(data[4])])
+      return new Uint8Array([...JsAscon.intToByteArray(data[3]), ...JsAscon.intToByteArray(data[4])])
     }
     const data = JsAscon.byteArrayToState(JsAscon.concatByteArrays(
       [keyLength * 8, rate * 8, permutationRoundsA + 128, permutationRoundsA - permutationRoundsB],
       JsAscon.intToByteArray(variant === 'Ascon-Mac' ? 128n : 0n, 4), // tagspec
       key,
       new Uint8Array(16)
-    ))    
+    ))
     JsAscon.debug('mac initial value', data)
     JsAscon.permutation(data, permutationRoundsA)
     JsAscon.debug('mac initialization', data)
@@ -324,7 +324,7 @@ export default class JsAscon {
     JsAscon.permutation(data, permutationRoundsA)
     while (tag.length < tagLength) {
       // @ts-ignore
-      tag = tag.concat(...JsAscon.bigIntToByteArray(data[0]), ...JsAscon.bigIntToByteArray(data[1]))
+      tag = tag.concat(...JsAscon.intToByteArray(data[0]), ...JsAscon.intToByteArray(data[1]))
       JsAscon.permutation(data, permutationRoundsB)
     }
     JsAscon.debug('mac finalization', data)
@@ -342,7 +342,7 @@ export default class JsAscon {
    * @param {Uint8Array} key a bytes object of size 16 (for Ascon-AEAD128; 128-bit security)
    * @param {Uint8Array} nonce A bytes object of size 16
    */
-  public static initialize(
+  public static initialize (
     data: bigint[],
     keySize: number,
     rate: number,
@@ -378,7 +378,7 @@ export default class JsAscon {
    * @param {number} rate Block size in bytes (16 for Ascon-AEAD128)
    * @param {Uint8Array} associatedData A byte array of any length
    */
-  public static processAssociatedData(
+  public static processAssociatedData (
     data: bigint[],
     permutationRoundsB: number,
     rate: number,
@@ -406,7 +406,7 @@ export default class JsAscon {
    * @param {Uint8Array} plaintext A byte array of any length
    * @return {Uint8Array} Returns the ciphertext as byte array
    */
-  public static processPlaintext(
+  public static processPlaintext (
     data: bigint[],
     permutationRoundsB: number,
     rate: number,
@@ -419,17 +419,17 @@ export default class JsAscon {
     // first t-1 blocks
     for (let block = 0; block < messageLength - rate; block += rate) {
       data[0] ^= JsAscon.byteArrayToBigInt(message, block)
-      ciphertextArr.push(...JsAscon.bigIntToByteArray(data[0], true))
+      ciphertextArr.push(...JsAscon.intToByteArray(data[0]))
       data[1] ^= JsAscon.byteArrayToBigInt(message, block + 8)
-      ciphertextArr.push(...JsAscon.bigIntToByteArray(data[1], true))
+      ciphertextArr.push(...JsAscon.intToByteArray(data[1]))
       JsAscon.permutation(data, permutationRoundsB)
     }
     // last block
     const block = messageLength - rate
     data[0] ^= JsAscon.byteArrayToBigInt(message, block)
     data[1] ^= JsAscon.byteArrayToBigInt(message, block + 8)
-    ciphertextArr.push(...JsAscon.bigIntToByteArray(data[0], true).slice(0, Math.min(8, lastLen)))
-    ciphertextArr.push(...JsAscon.bigIntToByteArray(data[1], true).slice(0, Math.max(0, lastLen - 8)))
+    ciphertextArr.push(...JsAscon.intToByteArray(data[0]).slice(0, Math.min(8, lastLen)))
+    ciphertextArr.push(...JsAscon.intToByteArray(data[1]).slice(0, Math.max(0, lastLen - 8)))
     JsAscon.debug('process plaintext', data)
     return new Uint8Array(ciphertextArr)
   }
@@ -442,7 +442,7 @@ export default class JsAscon {
    * @param {Uint8Array} ciphertext A byte array of any length
    * @return {Uint8Array} Returns the ciphertext as byte array
    */
-  public static processCiphertext(
+  public static processCiphertext (
     data: bigint[],
     permutationRoundsB: number,
     rate: number,
@@ -457,10 +457,10 @@ export default class JsAscon {
     // first t-1 blocks
     for (let block = 0; block < messageLength - rate; block += rate) {
       ci = JsAscon.byteArrayToBigInt(message, block)
-      plaintextArr.push(...JsAscon.bigIntToByteArray(data[0] ^ ci, true))
+      plaintextArr.push(...JsAscon.intToByteArray(data[0] ^ ci))
       data[0] = ci
       ci = JsAscon.byteArrayToBigInt(message, block + 8)
-      plaintextArr.push(...JsAscon.bigIntToByteArray(data[1] ^ ci, true))
+      plaintextArr.push(...JsAscon.intToByteArray(data[1] ^ ci))
       data[1] = ci
       JsAscon.permutation(data, permutationRoundsB)
     }
@@ -471,11 +471,11 @@ export default class JsAscon {
 
     ci = JsAscon.byteArrayToBigInt(message, block)
     const lastPart: number[] = []
-    lastPart.push(...JsAscon.bigIntToByteArray(data[0] ^ ci, true))
+    lastPart.push(...JsAscon.intToByteArray(data[0] ^ ci))
     data[0] = data[0] & JsAscon.byteArrayToBigInt(mask, 0) ^ ci ^ JsAscon.byteArrayToBigInt(padding, 0)
 
     ci = JsAscon.byteArrayToBigInt(message, block + 8)
-    lastPart.push(...JsAscon.bigIntToByteArray(data[1] ^ ci, true).slice(0, lastLen))
+    lastPart.push(...JsAscon.intToByteArray(data[1] ^ ci).slice(0, lastLen))
     data[1] = data[1] & JsAscon.byteArrayToBigInt(mask, 8) ^ ci ^ JsAscon.byteArrayToBigInt(padding, 8)
 
     plaintextArr.push(...lastPart.slice(0, lastLen))
@@ -518,7 +518,7 @@ export default class JsAscon {
    * @param {Uint8Array} key a bytes object of size 16 (for Ascon-AEAD128; 128-bit security)
    * @return {Uint8Array} The tag as a byte array
    */
-  public static finalize(
+  public static finalize (
     data: bigint[],
     permutationRoundsA: number,
     rate: number,
@@ -536,8 +536,8 @@ export default class JsAscon {
     data[4] ^= JsAscon.byteArrayToBigInt(key, -8)
     JsAscon.debug('finalization', data)
     return JsAscon.concatByteArrays(
-      JsAscon.bigIntToByteArray(data[3], true),
-      JsAscon.bigIntToByteArray(data[4], true)
+      JsAscon.intToByteArray(data[3]),
+      JsAscon.intToByteArray(data[4])
     )
   }
 
@@ -546,7 +546,7 @@ export default class JsAscon {
    * @param {BigInt[]} data Ascon state, a list of 5 64-bit integers
    * @param {number} rounds
    */
-  public static permutation(data: bigint[], rounds: number = 1): void {
+  public static permutation (data: bigint[], rounds: number = 1): void {
     JsAscon.assert(rounds <= 12, 'Permutation rounds must be <= 12')
     JsAscon.debug('permutation input', data, true)
     for (let round = 12 - rounds; round < 12; round++) {
@@ -575,7 +575,6 @@ export default class JsAscon {
       data[2] ^= JsAscon.bitRotateRight(data[2], 1) ^ JsAscon.bitRotateRight(data[2], 6)
       data[3] ^= JsAscon.bitRotateRight(data[3], 10) ^ JsAscon.bitRotateRight(data[3], 17)
       data[4] ^= JsAscon.bitRotateRight(data[4], 7) ^ JsAscon.bitRotateRight(data[4], 41)
-
       JsAscon.debug('linear diffusion layer', data, true)
     }
   }
@@ -585,7 +584,7 @@ export default class JsAscon {
    * @param {ArrayLike[]} arrays
    * @return {Uint8Array}
    */
-  public static concatByteArrays(...arrays: ArrayLike<any>[]): Uint8Array {
+  public static concatByteArrays (...arrays: ArrayLike<any>[]): Uint8Array {
     let len = 0
     for (let i = 0; i < arrays.length; i++) {
       len += arrays[i].length
@@ -604,7 +603,7 @@ export default class JsAscon {
    * @param {Uint8Array} byteArray
    * @return {string}
    */
-  public static byteArrayToStr(byteArray: Uint8Array): string {
+  public static byteArrayToStr (byteArray: Uint8Array): string {
     return new TextDecoder().decode(byteArray)
   }
 
@@ -613,7 +612,7 @@ export default class JsAscon {
    * @param {string|number[]|Uint8Array} val
    * @return {Uint8Array}
    */
-  public static anyToByteArray(val: any): Uint8Array {
+  public static anyToByteArray (val: any): Uint8Array {
     if (val instanceof Uint8Array) {
       return val
     }
@@ -629,31 +628,13 @@ export default class JsAscon {
    * @param  {number} bytesCount
    * @return {Uint8Array}
    */
-  public static intToByteArray(nr: bigint, bytesCount: number = 8): Uint8Array {
+  public static intToByteArray (nr: bigint, bytesCount: number = 8): Uint8Array {
     let arr = new Uint8Array(bytesCount)
-    let c = 0
-    while (nr > 0) {
-      arr[c++] = Number(nr & 255n)
+    let i = 0
+    while (bytesCount >= 0) {
+      arr[i++] = Number(nr & 255n)
       nr >>= 8n
-    }
-    return arr
-  }
-
-  /**
-   * Convert given bigint into byte array
-   * @param {BigInt} nr
-   * @param {boolean} reverse
-   * @return {Uint8Array}
-   */
-  public static bigIntToByteArray(nr: bigint, reverse: boolean = true): Uint8Array {
-    let bytes = 8
-    let arr = new Uint8Array(bytes)
-    while (nr > 0) {
-      arr[--bytes] = Number(nr & 255n)
-      nr >>= 8n
-    }
-    if (reverse) {
-      arr.reverse()
+      bytesCount--
     }
     return arr
   }
@@ -661,22 +642,16 @@ export default class JsAscon {
   /**
    * Convert given byte array into internal state array of 5 bigints
    * @param  {Uint8Array} byteArray
-   * @param {BigInt[]|null} fillInto If set, fill this given reference as well
+   * @param {BigInt[]|null} arr If set, use this reference array
    * @return {BigInt[]}
    */
-  public static byteArrayToState(byteArray: Uint8Array, fillInto: bigint[] | null = null): bigint[] {
-    const arr = [
-      JsAscon.byteArrayToBigInt(byteArray, 0),
-      JsAscon.byteArrayToBigInt(byteArray, 8),
-      JsAscon.byteArrayToBigInt(byteArray, 16),
-      JsAscon.byteArrayToBigInt(byteArray, 24),
-      JsAscon.byteArrayToBigInt(byteArray, 32)
-    ]
-    if (fillInto !== null) {
-      for (let i = 0; i < arr.length; i++) {
-        fillInto[i] = arr[i]
-      }
-    }
+  public static byteArrayToState (byteArray: Uint8Array, arr: bigint[] | null = null): bigint[] {
+    arr = arr || []
+    arr[0] = JsAscon.byteArrayToBigInt(byteArray, 0)
+    arr[1] = JsAscon.byteArrayToBigInt(byteArray, 8)
+    arr[2] = JsAscon.byteArrayToBigInt(byteArray, 16)
+    arr[3] = JsAscon.byteArrayToBigInt(byteArray, 24)
+    arr[4] = JsAscon.byteArrayToBigInt(byteArray, 32)
     return arr
   }
 
@@ -686,7 +661,7 @@ export default class JsAscon {
    * @param {number} offset
    * @return {BigInt}
    */
-  public static byteArrayToBigInt(byteArray: Uint8Array, offset: number): bigint {
+  public static byteArrayToBigInt (byteArray: Uint8Array, offset: number): bigint {
     if (offset < 0) {
       offset = byteArray.length + offset
     }
@@ -699,23 +674,11 @@ export default class JsAscon {
   /**
    * Convert given byte array to visual hex representation with leading 0x
    * @param {Uint8Array} byteArray
-   * @param {boolean} reverse
    * @return {string}
    */
-  public static byteArrayToHex(byteArray: Uint8Array, reverse: boolean = false): string {
-    if (reverse) {
-      return '0x' + Array.from(byteArray).reverse().map(x => x.toString(16).padStart(2, '0')).join('')
-    }
-    return '0x' + Array.from(byteArray).map(x => x.toString(16).padStart(2, '0')).join('')
-  }
+  public static byteArrayToHex (byteArray: Uint8Array): string {
 
-  /**
-   * Convert given byte array to visual hex representation with leading 0x
-   * @param {bigint} nr
-   * @return {string}
-   */
-  public static bigIntToHex(nr: bigint): string {
-    return nr.toString(16).padStart(16, '0')
+    return '0x' + Array.from(byteArray).map(x => x.toString(16).padStart(2, '0')).join('')
   }
 
   /**
@@ -723,7 +686,7 @@ export default class JsAscon {
    * @param {str} str
    * @return {string}
    */
-  public static hexToByteArray(str: string): Uint8Array {
+  public static hexToByteArray (str: string): Uint8Array {
     if (str.startsWith('0x')) {
       str = str.substring(2)
     }
@@ -735,7 +698,7 @@ export default class JsAscon {
    * @param {BigInt} nr
    * @param {number} places
    */
-  public static bitRotateRight(nr: bigint, places: number): bigint {
+  public static bitRotateRight (nr: bigint, places: number): bigint {
     const placesBig = BigInt(places)
     const shift1 = BigInt(1)
     const shiftRev = BigInt(64 - places)
@@ -749,7 +712,7 @@ export default class JsAscon {
    * @param {string[]} values
    * @param {string} errorMessage
    */
-  public static assertInArray(value: string, values: string[], errorMessage: string): void {
+  public static assertInArray (value: string, values: string[], errorMessage: string): void {
     JsAscon.assert(
       values.indexOf(value) > -1,
       errorMessage + ': Value \'' + value + '\' is not in available choices of\n' + JSON.stringify(values)
@@ -763,7 +726,7 @@ export default class JsAscon {
    * @param {any} actual
    * @param {string} errorMessage
    */
-  public static assertSame(expected: any, actual: any, errorMessage: string): void {
+  public static assertSame (expected: any, actual: any, errorMessage: string): void {
     JsAscon.assert(
       expected === actual,
       errorMessage + ': Value is expected to be\n' + JSON.stringify(expected) + '\nbut actual value is\n' + JSON.stringify(actual)
@@ -777,7 +740,7 @@ export default class JsAscon {
    * @param {boolean} result
    * @param {string} errorMessage
    */
-  public static assert(result: boolean, errorMessage: string): void {
+  public static assert (result: boolean, errorMessage: string): void {
     if (!result) {
       throw new Error(errorMessage)
     }
@@ -788,7 +751,7 @@ export default class JsAscon {
    * @param {number} length
    * @return {Uint8Array}
    */
-  public static getRandomUintArray(length: number): Uint8Array {
+  public static getRandomUintArray (length: number): Uint8Array {
     if (typeof crypto === 'undefined') {
       new Error('JsAscon requires the "crypto" library to be installed')
     }
@@ -809,7 +772,7 @@ export default class JsAscon {
    * @param {BigInt[]|null} stateData
    * @param {boolean} permutation Is a permutation debug
    */
-  public static debug(
+  public static debug (
     msg: any,
     stateData: Array<bigint> | null = null,
     permutation: boolean = false

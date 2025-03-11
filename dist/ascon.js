@@ -113,7 +113,7 @@ class JsAscon {
     JsAscon.debug("process message", data);
     let hash = [];
     while (hash.length < hashLength) {
-      hash = hash.concat(...JsAscon.bigIntToByteArray(data[0]));
+      hash = hash.concat(...JsAscon.intToByteArray(data[0]));
       JsAscon.permutation(data, permutationRoundsB);
     }
     JsAscon.debug("finalization", data);
@@ -144,7 +144,7 @@ class JsAscon {
       JsAscon.debug("mac process message", data2);
       data2[3] ^= JsAscon.byteArrayToBigInt(key, 0);
       data2[4] ^= JsAscon.byteArrayToBigInt(key, 8);
-      return new Uint8Array([...JsAscon.bigIntToByteArray(data2[3]), ...JsAscon.bigIntToByteArray(data2[4])]);
+      return new Uint8Array([...JsAscon.intToByteArray(data2[3]), ...JsAscon.intToByteArray(data2[4])]);
     }
     const data = JsAscon.byteArrayToState(JsAscon.concatByteArrays([keyLength * 8, rate * 8, permutationRoundsA + 128, permutationRoundsA - permutationRoundsB], JsAscon.intToByteArray(variant === "Ascon-Mac" ? 128n : 0n, 4), key, new Uint8Array(16)));
     JsAscon.debug("mac initial value", data);
@@ -167,7 +167,7 @@ class JsAscon {
     let tag = [];
     JsAscon.permutation(data, permutationRoundsA);
     while (tag.length < tagLength) {
-      tag = tag.concat(...JsAscon.bigIntToByteArray(data[0]), ...JsAscon.bigIntToByteArray(data[1]));
+      tag = tag.concat(...JsAscon.intToByteArray(data[0]), ...JsAscon.intToByteArray(data[1]));
       JsAscon.permutation(data, permutationRoundsB);
     }
     JsAscon.debug("mac finalization", data);
@@ -205,16 +205,16 @@ class JsAscon {
     const ciphertextArr = [];
     for (let block2 = 0;block2 < messageLength - rate; block2 += rate) {
       data[0] ^= JsAscon.byteArrayToBigInt(message, block2);
-      ciphertextArr.push(...JsAscon.bigIntToByteArray(data[0], true));
+      ciphertextArr.push(...JsAscon.intToByteArray(data[0]));
       data[1] ^= JsAscon.byteArrayToBigInt(message, block2 + 8);
-      ciphertextArr.push(...JsAscon.bigIntToByteArray(data[1], true));
+      ciphertextArr.push(...JsAscon.intToByteArray(data[1]));
       JsAscon.permutation(data, permutationRoundsB);
     }
     const block = messageLength - rate;
     data[0] ^= JsAscon.byteArrayToBigInt(message, block);
     data[1] ^= JsAscon.byteArrayToBigInt(message, block + 8);
-    ciphertextArr.push(...JsAscon.bigIntToByteArray(data[0], true).slice(0, Math.min(8, lastLen)));
-    ciphertextArr.push(...JsAscon.bigIntToByteArray(data[1], true).slice(0, Math.max(0, lastLen - 8)));
+    ciphertextArr.push(...JsAscon.intToByteArray(data[0]).slice(0, Math.min(8, lastLen)));
+    ciphertextArr.push(...JsAscon.intToByteArray(data[1]).slice(0, Math.max(0, lastLen - 8)));
     JsAscon.debug("process plaintext", data);
     return new Uint8Array(ciphertextArr);
   }
@@ -226,10 +226,10 @@ class JsAscon {
     const plaintextArr = [];
     for (let block2 = 0;block2 < messageLength - rate; block2 += rate) {
       ci = JsAscon.byteArrayToBigInt(message, block2);
-      plaintextArr.push(...JsAscon.bigIntToByteArray(data[0] ^ ci, true));
+      plaintextArr.push(...JsAscon.intToByteArray(data[0] ^ ci));
       data[0] = ci;
       ci = JsAscon.byteArrayToBigInt(message, block2 + 8);
-      plaintextArr.push(...JsAscon.bigIntToByteArray(data[1] ^ ci, true));
+      plaintextArr.push(...JsAscon.intToByteArray(data[1] ^ ci));
       data[1] = ci;
       JsAscon.permutation(data, permutationRoundsB);
     }
@@ -238,10 +238,10 @@ class JsAscon {
     const mask = JsAscon.concatByteArrays(new Uint8Array(lastLen), new Uint8Array(rate - lastLen).fill(255));
     ci = JsAscon.byteArrayToBigInt(message, block);
     const lastPart = [];
-    lastPart.push(...JsAscon.bigIntToByteArray(data[0] ^ ci, true));
+    lastPart.push(...JsAscon.intToByteArray(data[0] ^ ci));
     data[0] = data[0] & JsAscon.byteArrayToBigInt(mask, 0) ^ ci ^ JsAscon.byteArrayToBigInt(padding, 0);
     ci = JsAscon.byteArrayToBigInt(message, block + 8);
-    lastPart.push(...JsAscon.bigIntToByteArray(data[1] ^ ci, true).slice(0, lastLen));
+    lastPart.push(...JsAscon.intToByteArray(data[1] ^ ci).slice(0, lastLen));
     data[1] = data[1] & JsAscon.byteArrayToBigInt(mask, 8) ^ ci ^ JsAscon.byteArrayToBigInt(padding, 8);
     plaintextArr.push(...lastPart.slice(0, lastLen));
     JsAscon.debug("process ciphertext", data);
@@ -256,7 +256,7 @@ class JsAscon {
     data[3] ^= JsAscon.byteArrayToBigInt(key, -16);
     data[4] ^= JsAscon.byteArrayToBigInt(key, -8);
     JsAscon.debug("finalization", data);
-    return JsAscon.concatByteArrays(JsAscon.bigIntToByteArray(data[3], true), JsAscon.bigIntToByteArray(data[4], true));
+    return JsAscon.concatByteArrays(JsAscon.intToByteArray(data[3]), JsAscon.intToByteArray(data[4]));
   }
   static permutation(data, rounds = 1) {
     JsAscon.assert(rounds <= 12, "Permutation rounds must be <= 12");
@@ -314,38 +314,21 @@ class JsAscon {
   }
   static intToByteArray(nr, bytesCount = 8) {
     let arr = new Uint8Array(bytesCount);
-    let c = 0;
-    while (nr > 0) {
-      arr[c++] = Number(nr & 255n);
+    let i = 0;
+    while (bytesCount >= 0) {
+      arr[i++] = Number(nr & 255n);
       nr >>= 8n;
+      bytesCount--;
     }
     return arr;
   }
-  static bigIntToByteArray(nr, reverse = true) {
-    let bytes = 8;
-    let arr = new Uint8Array(bytes);
-    while (nr > 0) {
-      arr[--bytes] = Number(nr & 255n);
-      nr >>= 8n;
-    }
-    if (reverse) {
-      arr.reverse();
-    }
-    return arr;
-  }
-  static byteArrayToState(byteArray, fillInto = null) {
-    const arr = [
-      JsAscon.byteArrayToBigInt(byteArray, 0),
-      JsAscon.byteArrayToBigInt(byteArray, 8),
-      JsAscon.byteArrayToBigInt(byteArray, 16),
-      JsAscon.byteArrayToBigInt(byteArray, 24),
-      JsAscon.byteArrayToBigInt(byteArray, 32)
-    ];
-    if (fillInto !== null) {
-      for (let i = 0;i < arr.length; i++) {
-        fillInto[i] = arr[i];
-      }
-    }
+  static byteArrayToState(byteArray, arr = null) {
+    arr = arr || [];
+    arr[0] = JsAscon.byteArrayToBigInt(byteArray, 0);
+    arr[1] = JsAscon.byteArrayToBigInt(byteArray, 8);
+    arr[2] = JsAscon.byteArrayToBigInt(byteArray, 16);
+    arr[3] = JsAscon.byteArrayToBigInt(byteArray, 24);
+    arr[4] = JsAscon.byteArrayToBigInt(byteArray, 32);
     return arr;
   }
   static byteArrayToBigInt(byteArray, offset) {
@@ -357,14 +340,8 @@ class JsAscon {
     }
     return new DataView(byteArray.buffer).getBigUint64(offset, true);
   }
-  static byteArrayToHex(byteArray, reverse = false) {
-    if (reverse) {
-      return "0x" + Array.from(byteArray).reverse().map((x) => x.toString(16).padStart(2, "0")).join("");
-    }
+  static byteArrayToHex(byteArray) {
     return "0x" + Array.from(byteArray).map((x) => x.toString(16).padStart(2, "0")).join("");
-  }
-  static bigIntToHex(nr) {
-    return nr.toString(16).padStart(16, "0");
   }
   static hexToByteArray(str) {
     if (str.startsWith("0x")) {

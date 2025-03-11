@@ -7,6 +7,7 @@ It allows to encrypt and decrypt any kind of message. Includes the authenticated
 Heavily inspired by the python implementation of Ascon by https://github.com/meichlseder/pyascon
 
 > Notice: This library does contain the version 1.3 of Ascon. v1.2 was a draft version and there are already newer versions of ascon. See https://github.com/ascon/ascon-c . Version 1.2 is not compatible with 1.3
+
 ## About Ascon
 
 Ascon is a family of [authenticated encryption](https://en.wikipedia.org/wiki/Authenticated_encryption) (AEAD)
@@ -77,8 +78,10 @@ console.log(JsAscon.mac(key, "Testmessage"))
 
 ```
 
-Algorithms
-----------
+## Development
+Change code in `src/ascon.ts`. Test changes with `npm run tests-bun` or `npm run tests-node`. Create dist files with `npm run dist`.
+
+## Algorithms
 
 This is a simple reference implementation of Ascon as specified in NIST's draft standard, NIST SP 800-232, which includes
 
@@ -99,8 +102,7 @@ This is a simple reference implementation of Ascon as specified in NIST's draft 
     - `Ascon-PrfShort` (t-bit output for t<=128, m-bit input for m<=128)
   
 
-Older Algorithm Variants
-------------------------
+## Older Algorithm Variants
 
 Older versions implement Ascon v1.2 as submitted to the NIST LWC competition and published in the Journal of Cryptology, as well as additional functionality for message authentication. These versions can be found in at https://github.com/brainfoolong/js-ascon/tree/d6a74535555078767fcfe5bd47e7f6376fdad93a, including
 
