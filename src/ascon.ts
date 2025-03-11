@@ -89,11 +89,10 @@ export default class JsAscon {
     const nonceLength = nonce.length
     JsAscon.assert(keyLength === 16 && nonceLength === 16, 'Incorrect key (' + keyLength + ') or nonce(' + nonceLength + ') length')
     const data = []
-    const keySizeBits = keyLength * 8
     const permutationRoundsA = 12
     const permutationRoundsB = 8
     const rate = 16
-    JsAscon.initialize(data, keySizeBits, rate, permutationRoundsA, permutationRoundsB, versions[variant], key, nonce)
+    JsAscon.initialize(data, rate, permutationRoundsA, permutationRoundsB, versions[variant], key, nonce)
     associatedData = JsAscon.anyToByteArray(associatedData)
     JsAscon.processAssociatedData(data, permutationRoundsB, rate, associatedData)
     plaintext = JsAscon.anyToByteArray(plaintext)
@@ -128,11 +127,10 @@ export default class JsAscon {
     const nonceLength = nonce.length
     JsAscon.assert(keyLength === 16 && nonceLength === 16, 'Incorrect key (' + keyLength + ') or nonce(' + nonceLength + ') length')
     const data = []
-    const keySizeBits = keyLength * 8
     const permutationRoundsA = 12
     const permutationRoundsB = 8
     const rate = 16
-    JsAscon.initialize(data, keySizeBits, rate, permutationRoundsA, permutationRoundsB, versions[variant], key, nonce)
+    JsAscon.initialize(data, rate, permutationRoundsA, permutationRoundsB, versions[variant], key, nonce)
     associatedData = JsAscon.anyToByteArray(associatedData)
     JsAscon.processAssociatedData(data, permutationRoundsB, rate, associatedData)
     ciphertextAndTag = JsAscon.anyToByteArray(ciphertextAndTag)
@@ -195,9 +193,9 @@ export default class JsAscon {
       iv,
       new Uint8Array(32)
     ))
-    JsAscon.debug('hash initial value', data, true)
+    JsAscon.debug('initial value', data)
     JsAscon.permutation(data, permutationRoundsA)
-    JsAscon.debug('hash initialization', data, true)
+    JsAscon.debug('initialization', data)
 
     // Customization
     if (customize) {
@@ -262,9 +260,9 @@ export default class JsAscon {
     const keyLength = key.length
     message = JsAscon.anyToByteArray(message)
     const messageLength = message.length
-    if (['Ascon-Mac'].indexOf(variant) > -1) {
+    if (variant === 'Ascon-Mac') {
       JsAscon.assert(keyLength === 16 && tagLength <= 16, 'Incorrect key length')
-    } else if (['Ascon-Prf'].indexOf(variant) > -1) {
+    } else if (variant === 'Ascon-Prf') {
       JsAscon.assert(keyLength === 16, 'Incorrect key length')
     } else if (variant === 'Ascon-PrfShort') {
       JsAscon.assert(messageLength <= 16, 'Message to long for variant ' + variant)
@@ -282,9 +280,9 @@ export default class JsAscon {
         message,
         new Uint8Array(16 - messageLength)
       ))
-      JsAscon.debug('mac initial value', data)
+      JsAscon.debug('initial value', data)
       JsAscon.permutation(data, permutationRoundsA)
-      JsAscon.debug('mac process message', data)
+      JsAscon.debug('process message', data)
       data[3] ^= JsAscon.byteArrayToBigInt(key, 0)
       data[4] ^= JsAscon.byteArrayToBigInt(key, 8)
       return new Uint8Array([...JsAscon.intToByteArray(data[3]), ...JsAscon.intToByteArray(data[4])])
@@ -295,9 +293,9 @@ export default class JsAscon {
       key,
       new Uint8Array(16)
     ))
-    JsAscon.debug('mac initial value', data)
+    JsAscon.debug('initial value', data)
     JsAscon.permutation(data, permutationRoundsA)
-    JsAscon.debug('mac initialization', data)
+    JsAscon.debug('initialization', data)
     // message processing (absorbing)
     const messagePadded = JsAscon.concatByteArrays(
       message,
@@ -318,7 +316,7 @@ export default class JsAscon {
       data[i] ^= JsAscon.byteArrayToBigInt(messagePadded, block + (i * 8))
     }
     data[4] ^= 1n
-    JsAscon.debug('mac process message', data)
+    JsAscon.debug('process message', data)
     // finalization (squeezing)
     let tag = []
     JsAscon.permutation(data, permutationRoundsA)
@@ -327,14 +325,13 @@ export default class JsAscon {
       tag = tag.concat(...JsAscon.intToByteArray(data[0]), ...JsAscon.intToByteArray(data[1]))
       JsAscon.permutation(data, permutationRoundsB)
     }
-    JsAscon.debug('mac finalization', data)
+    JsAscon.debug('finalization', data)
     return new Uint8Array(tag)
   }
 
   /**
    * Ascon initialization phase - internal helper function
    * @param {BigInt[]} data Ascon state, a list of 5 64-bit integers
-   * @param {number} keySize Key size in bits
    * @param {number} rate Block size in bytes (8 for Ascon-128, Ascon-80pq; 16 for Ascon-128a)
    * @param {number} permutationRoundsA Number of initialization/finalization rounds for permutation
    * @param {number} permutationRoundsB Number of intermediate rounds for permutation
@@ -344,7 +341,6 @@ export default class JsAscon {
    */
   public static initialize (
     data: bigint[],
-    keySize: number,
     rate: number,
     permutationRoundsA: number,
     permutationRoundsB: number,
@@ -481,32 +477,6 @@ export default class JsAscon {
     plaintextArr.push(...lastPart.slice(0, lastLen))
     JsAscon.debug('process ciphertext', data)
     return new Uint8Array(plaintextArr)
-
-    //   const lastLen = ciphertext.length % rate
-    //   const message = JsAscon.concatByteArrays(ciphertext, new Uint8Array(rate - lastLen))
-    //   const messageLength = message.length
-    //   let plaintext = ''
-    //   // first t-1 blocks
-    //   for (let block = 0; block < messageLength - rate; block += rate) {
-    //     let ci = JsAscon.byteArrayToBigInt(message, block)
-    //     plaintext += JsAscon.bigIntToHex(data[0] ^ ci)
-    //     data[0] = ci
-    //     ci = JsAscon.byteArrayToBigInt(message, block + 8)
-    //     plaintext += JsAscon.bigIntToHex(data[1] ^ ci)
-    //     data[1] = ci
-    //     JsAscon.permutation(data, permutationRoundsB)
-    //   }
-    //   // last block
-    //   const block = messageLength - rate
-    //   const padding = JsAscon.concatByteArrays(new Uint8Array(lastLen), [0x01], new Uint8Array(rate - lastLen - 1))
-    //   const mask = JsAscon.concatByteArrays(new Uint8Array(lastLen), (new Uint8Array(rate - lastLen)).fill(0xFF))
-    //   const ciA = JsAscon.byteArrayToBigInt(message, block)
-    //   const ciB = JsAscon.byteArrayToBigInt(message, block + 8)
-    //   plaintext += (JsAscon.bigIntToHex(data[0] ^ ciA) + JsAscon.bigIntToHex(data[1] ^ ciB)).substring(0, lastLen * 2)
-    //   data[0] = data[0] & JsAscon.byteArrayToBigInt(mask, 0) ^ ciA ^ JsAscon.byteArrayToBigInt(padding, 0)
-    //   data[1] = data[1] & JsAscon.byteArrayToBigInt(mask, 8) ^ ciB ^ JsAscon.byteArrayToBigInt(padding, 8)
-    //   JsAscon.debug('process ciphertext', data)
-    //   return JsAscon.hexToByteArray(plaintext)
   }
 
   /**
@@ -631,7 +601,7 @@ export default class JsAscon {
   public static intToByteArray (nr: bigint, bytesCount: number = 8): Uint8Array {
     let arr = new Uint8Array(bytesCount)
     let i = 0
-    while (bytesCount >= 0) {
+    while (bytesCount > 0) {
       arr[i++] = Number(nr & 255n)
       nr >>= 8n
       bytesCount--
