@@ -102,7 +102,7 @@ This is a simple reference implementation of Ascon as specified in NIST's draft 
 Older Algorithm Variants
 ------------------------
 
-Older versions of `ascon.py` implement Ascon v1.2 as submitted to the NIST LWC competition and published in the Journal of Cryptology, as well as additional functionality for message authentication. These versions can be found in commit (TODO), including
+Older versions implement Ascon v1.2 as submitted to the NIST LWC competition and published in the Journal of Cryptology, as well as additional functionality for message authentication. These versions can be found in at https://github.com/brainfoolong/js-ascon/tree/d6a74535555078767fcfe5bd47e7f6376fdad93a, including
 
   * Authenticated encryption:
 
