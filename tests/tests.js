@@ -3,6 +3,7 @@ const JsAscon = globalThis.JsAscon;
 (async function () {
   JsAscon.debugEnabled = false
   JsAscon.debugPermutationEnabled = false
+  const startTime = new Date().getTime()
 
   function genBytes (len) {
     const arr = new Uint8Array(len)
@@ -145,5 +146,5 @@ const JsAscon = globalThis.JsAscon;
   const decrypted = JsAscon.decryptFromHex(secret, encrypted)
   JsAscon.assertSame(msg, decrypted, 'Encryption/Decryption failed')
 
-  console.log('Tests successfully done')
+  console.log('Tests successfully done in ' + (new Date().getTime() - startTime) + 'ms')
 })()
