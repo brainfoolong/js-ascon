@@ -1,7 +1,6 @@
 name: JS and TS tests
 on:
   push:
-  pull_request:
 jobs:
   tests:
     strategy:
