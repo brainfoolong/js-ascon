@@ -1,3 +1,6 @@
+> **Note:** This is a mirror, please visit [the Codeberg Repo](https://codeberg.org/brainfoolong/js-ascon.git) for actual development. [Why Codeberg?](https://github.com/brainfoolong/brainfoolong/blob/main/WHYCODEBERG.md)
+
+
 # JavaScript/TypeScript Implementation of Ascon
 
 [![Tests](https://codeberg.org/BrainFooLong/js-ascon/actions/workflows/tests-node.yml/badge.svg)](https://codeberg.org/BrainFooLong/js-ascon/actions?workflow=tests-node.yml)
