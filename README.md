@@ -1,6 +1,7 @@
 # JavaScript/TypeScript Implementation of Ascon
 
-[![Tests](https://codeberg.org/BrainFooLong/js-ascon/actions/workflows/tests.yml/badge.svg)](https://codeberg.org/BrainFooLong/js-ascon/actions?workflow=tests.yml)
+[![Tests](https://codeberg.org/BrainFooLong/js-ascon/actions/workflows/tests-node.yml/badge.svg)](https://codeberg.org/BrainFooLong/js-ascon/actions?workflow=tests-node.yml)
+[![Tests](https://codeberg.org/BrainFooLong/js-ascon/actions/workflows/tests-bun.yml/badge.svg)](https://codeberg.org/BrainFooLong/js-ascon/actions?workflow=tests-bun.yml)
 
 This is a JavaScript/TypeScript (JS compiled from TypeScript) implementation of Ascon v1.3, an authenticated cipher and hash function.
 It allows to encrypt and decrypt any kind of message. Includes the authenticated encryption and hash function variants as specified in [NIST SP 800-232 (initial public draft)](https://csrc.nist.gov/pubs/sp/800/232/ipd).
