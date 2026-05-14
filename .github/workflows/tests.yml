@@ -5,13 +5,13 @@ jobs:
   tests:
     strategy:
       matrix:
-        node-version: [ '14.x', '16.x', '18.x' ,'20.x' ,'latest' ]
+        node-version: [ '14.x', '16.x', '18.x' ,'20.x' ,'latest']
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - name: Install Node.js ${{ matrix.node-version }}
+      - name: Install Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
@@ -19,10 +19,10 @@ jobs:
       - name: Run tests on ${{ matrix.node-version }}
         run: node tests/tests-node.js
 
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup Bun
+        uses: https://github.com/oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-download-url: "https://github.com/oven-sh/bun/releases/latest/download/bun-linux-x64.zip"
 
       - name: Run tests on Bun
         run: bun tests/tests-bun.ts 
